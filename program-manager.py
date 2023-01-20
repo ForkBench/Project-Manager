@@ -254,7 +254,7 @@ if __name__ == "__main__":
         action="store_true",
         help="Initialize a git repository and initialize the first commit"
     )
-    
+
     parser.add_argument(
         "-utils",
         dest="utils",
@@ -277,24 +277,24 @@ if __name__ == "__main__":
                 program_manager.move_last_downloads()
 
             elif arg == "g":
-                
+
                 # Generate files
                 program_manager.generate_file(value)
 
             elif arg == "utp":
-                
+
                 # Undo the last move of the last downloads
                 program_manager.undo_move_last_downloads()
 
             elif arg == "git":
-                
+
                 # Initialize git repository
                 os.system("git init")
                 os.system("git add .")
                 os.system("git commit -m 'Project Initialisation'")
-                
+
             elif arg == "utils":
-                
+
                 # Create the utils folder
                 os.mkdir("utils")
 
