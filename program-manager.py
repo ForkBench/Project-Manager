@@ -268,10 +268,13 @@ if __name__ == "__main__":
     program_manager = ProgramManager()
 
     # Loop through the arguments
+    used = False
     for arg in vars(args):
         value = getattr(args, arg)
 
         if value:
+            
+            used = True
 
             if arg == "tp":
                 program_manager.move_last_downloads()
@@ -297,5 +300,9 @@ if __name__ == "__main__":
 
                 # Create the utils folder
                 os.mkdir("utils")
+                
+    if not used:
+        print("No argument used, use -h to see the help")
+        sys.exit(1)
 
     print("Done")
