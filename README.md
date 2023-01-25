@@ -72,7 +72,7 @@ Make a table with the options (commands are between "`")
 | --- | --- |
 | `-h`, `--help` | Show the help message |
 | `-tp`, `--move-last-downloads` | Move the last downloads to the Desktop |
-| `-g {processing,latex,java,html,c}`, `--generate {processing,latex,java,html,c}` | Generate a file in the specified language |
+| `-g {[languages]}`, `--generate {[languages]}` | Generate a file in the specified language |
 | `-utp`, `--undo-move-last-downloads` | Undo the last move of the last downloads |
 | `--git` | Initialize a git repository and initialize the first commit |
 | `--utils` | Add utils folder to the project |
@@ -81,3 +81,37 @@ Make a table with the options (commands are between "`")
 | `--clear-folder` | Clear the folder |
 | `-lg`, `--list-generators` | List the available generators |
 | `--pandoc-compile PANDOC_COMPILE` | Compile the markdown file to pdf |
+
+## Personalization
+
+You can personalize the script by adding your own presets in the `presets` folder :
+
+- The `presets` contains different folders, each one containing a programming language.
+- In each of them, you can add a folder with the name of the preset, and inside it, you can add the files you want to add to the project.
+  - You can add a `DESC.txt` file to add a description of the preset.
+  - You can name some folders / files with the following syntax: `NAMEX`, where `X` is a number. The script will replace `X` by a string that you will enter when you will create the project.
+
+### Example
+
+Let's say you want to create a preset for a `C` project, with a `main.c` file, and a `utils` folder. You can create a folder `c` in the `presets` folder, and inside it, a folder `my-preset`, with the following structure:
+
+```
+presets
+└───c
+    └───my-preset
+        │   main.c
+        │   DESC.txt (optional)
+        │
+        └───utils
+```
+
+In the `DESC.txt` file, you can add a description of the preset. In the `main.c` file, you can add code, and in the `utils` folder, you can add some files that you want to add to each project created with this preset.
+
+Then, to generate your preset, you can run the following command :
+
+```bash
+pm -g c
+```
+
+Command prompt will ask you to choose a preset, and done ! You have a new project with your working files.
+
