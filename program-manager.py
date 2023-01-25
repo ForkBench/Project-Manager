@@ -40,14 +40,30 @@ LANGUAGES = {
     "en_GB.UTF-8": "English"
 }
 
-PROGRAMMING_LANGUAGES = {
-    "python",
-    "c",
-    "java",
-    "javascript",
-    "html",
-    "processing"
-}
+PROGRAMMING_LANGUAGES = {}
+
+# List folders from presets folder : its the languages
+# For each language, list folders from presets folder : its the different environments
+
+# List languages
+for language in os.listdir(f"{currentPath}/presets"):
+
+    # List environments
+    for environment in os.listdir(f"{currentPath}/presets/{language}"):
+
+        # Check if the environment is already in the dictionary
+        if not language in PROGRAMMING_LANGUAGES.keys():
+            PROGRAMMING_LANGUAGES[language] = {}
+
+        # Add the environment to the dictionary
+        # Check first if there is "DESC.txt" file, if so, use it as description
+        description = "No description"
+
+        if os.path.exists(f"{currentPath}/presets/{language}/{environment}/DESC.txt"):
+            with open(f"{currentPath}/presets/{language}/{environment}/DESC.txt", "r") as f:
+                description = f.read()
+
+        PROGRAMMING_LANGUAGES[language][environment] = {"name": environment, "path": f"{currentPath}/presets/{language}/{environment}", "description": description}
 
 
 class ProgramManager:
@@ -170,7 +186,7 @@ class ProgramManager:
 
             # Check if exists
             if os.path.exists(t):
-                print(f"{t} already exists")
+                print(f"\x1b[3;34m{t} already exists\x1b[0m")
                 continue
 
             isDir = os.path.isdir(s)
@@ -306,7 +322,7 @@ if __name__ == "__main__":
         dest='g',
         action='store',
         help="Generate a file in the specified language",
-        choices=PROGRAMMING_LANGUAGES
+        choices=PROGRAMMING_LANGUAGES.keys()
     )
 
     parser.add_argument(
@@ -318,38 +334,46 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "-git",
+        "--git",
         dest="git",
         action="store_true",
         help="Initialize a git repository and initialize the first commit"
     )
 
     parser.add_argument(
-        "-utils",
+        "--utils",
         dest="utils",
         action="store_true",
         help="Add utils folder to the project"
     )
 
     parser.add_argument(
-        "-processing-import",
+        "--processing-import",
         dest="processing_import",
         action="store_true",
         help="Add the import of the processing library to the project"
     )
 
     parser.add_argument(
-        "-processing-delete",
+        "--processing-delete",
         dest="processing_delete",
         action="store_true",
         help="Delete the processing library from the project"
     )
 
     parser.add_argument(
-        "-clear-folder",
+        "--clear-folder",
         dest="clear_folder",
         action="store_true",
         help="Clear the folder"
+    )
+
+    parser.add_argument(
+        "-lg",
+        "--list-generators",
+        dest="lg",
+        action="store_true",
+        help="List the available generators"
     )
 
     args = parser.parse_args()
@@ -359,6 +383,9 @@ if __name__ == "__main__":
 
     # Loop through the arguments
     used = False
+
+    print("\n\x1b[32m[+=====================+]\n\x1b[39m")
+
     for arg in vars(args):
         value = getattr(args, arg)
 
@@ -369,15 +396,52 @@ if __name__ == "__main__":
             if arg == "tp":
                 program_manager.move_last_downloads()
 
+                print("\x1b[33m[+] \x1b[39mThe last downloads have been moved from the Downloads folder\x1b[39m")
+
             elif arg == "g":
 
+                # Ask the user for the environment
+                print(f"Available Environments for {value} :")
+
+                availableEnvironments = PROGRAMMING_LANGUAGES[value].keys()
+
+                for i, environment in enumerate(availableEnvironments):
+                    print(f"\t\x1b[33m[{i}] - {environment}\x1b[39m")
+
+                    # Check if the environment has a description
+                    if "description" in PROGRAMMING_LANGUAGES[value][environment]:
+                        print(f"\t\t\x1b[34m{PROGRAMMING_LANGUAGES[value][environment]['description']}\x1b[39m")
+                
+                # Get the environment
+                userInput = input("\n\x1b[32mChoose an Environment : (Default 0) \x1b[39m")
+
+                choice = 0
+
+                try:
+                    choice = int(userInput)
+                except:
+                    pass
+                
+                if not choice in range(len(availableEnvironments)):
+                    choice = 0
+                    print("\n\x1b[31m\t[!]\x1b[39m Invalid choice, defaulting to 0")
+
+                # Get the environment
+                environment = list(availableEnvironments)[choice]
+
+                print(f"\n\x1b[33mEnvironment : {environment}\x1b[39m")
+
                 # Generate files
-                program_manager.generate_file(value)
+                program_manager.generate_file(value, environment)
+
+                print("\x1b[33m[+] \x1b[39mThe files have been generated\x1b[39m")
 
             elif arg == "utp":
 
                 # Undo the last move of the last downloads
                 program_manager.undo_move_last_downloads()
+
+                print("\x1b[33m[+] \x1b[39mThe last downloads have been moved back to the Downloads folder\x1b[39m")
 
             elif arg == "git":
 
@@ -386,26 +450,51 @@ if __name__ == "__main__":
                 os.system("git add .")
                 os.system("git commit -m 'Project Initialisation'")
 
+                print("\x1b[33m[+] \x1b[39mThe git repository has been initialized\x1b[39m")
+
             elif arg == "utils":
 
                 # Create the utils folder
                 os.mkdir("utils")
 
+                print("\x1b[33m[+] \x1b[39mThe utils folder has been created\x1b[39m")
+
             elif arg == "processing_import":
 
                 program_manager.import_processing_dependencies()
+
+                print("\x1b[33m[+] \x1b[39mThe processing library has been imported to the project")
 
             elif arg == "clear_folder":
 
                 program_manager.clear_folder()
 
+                print("\x1b[33m[+] \x1b[39mThe folder has been cleared\x1b[39m")
+
             elif arg == "processing_delete":
 
                 program_manager.clear_folder("code")
+
+                print("\x1b[33m[+] \x1b[39mThe processing library has been deleted from the project")
+
+            elif arg == "lg":
+
+                # List the available generators
+                for language in PROGRAMMING_LANGUAGES:
+                    print(f"-> \x1b[33m{language}\x1b[39m")
+
+                    for environment in PROGRAMMING_LANGUAGES[language]:
+                        print(f"\t=> \x1b[34m{environment}\x1b[39m")
+
+                        # Check if the environment has a description
+                        if "description" in PROGRAMMING_LANGUAGES[language][environment]:
+                            print(f"\t\t\x1b[35m{PROGRAMMING_LANGUAGES[language][environment]['description']}\x1b[39m")
 
                 
     if not used:
         print("No argument used, use -h to see the help")
         sys.exit(1)
 
-    print("Done")
+    print("\n\x1b[32m[+=====================+]\n\x1b[39m")
+
+    print("\x1b[32m[+] Done\x1b[39m")

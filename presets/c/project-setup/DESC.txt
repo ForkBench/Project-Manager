@@ -1,0 +1,1 @@
+Default complete C preset with Makefile, headers/ and src/, and a main.c .

@@ -22,6 +22,8 @@ Then put the script in your `HOME` directory, and add the following line in your
 ```bash
 cp program-manager.py ~/pm.py
 echo "alias pm='python3 ~/pm.py'" >> ~/.bashrc
+# or
+echo "alias pm='python3 ~/pm.py'" >> ~/.bash_profile
 ```
 
 ## Windows
