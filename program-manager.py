@@ -45,7 +45,8 @@ PROGRAMMING_LANGUAGES = {
     "c",
     "java",
     "javascript",
-    "html"
+    "html",
+    "processing"
 }
 
 
@@ -78,7 +79,7 @@ class ProgramManager:
         Returns the environment of the system
         """
 
-        self.environment = ENVIRONMENTS.get(self.language, {})
+        self.environment = ENVIRONMENTS.get(self.language, {"Documents": "Documents"})
 
     def newestFile(self, path: str) -> str:
         files = os.listdir(path)
@@ -164,6 +165,14 @@ class ProgramManager:
             s = os.path.join(source, item)
             t = os.path.join(target, item)
 
+            if s.startswith("."):
+                continue
+
+            # Check if exists
+            if os.path.exists(t):
+                print(f"{t} already exists")
+                continue
+
             isDir = os.path.isdir(s)
 
             # If the file / directory to copy is called "NAMEX.extension" for a file or "NAMEX" for a directory,
@@ -178,10 +187,16 @@ class ProgramManager:
 
                     # Ask the user to change the name
                     itemType = "directory" if isDir else "file"
+                    
                     newName = input(
                         f"Enter a new name for {item} ({itemType}) : ")
-                    t = os.path.join(target, newName + "." +
-                                     item.split(".")[1])
+                    
+                    # Check if item.split(".")[1] exists
+                    if len(item.split(".")) > 1:
+                        t = os.path.join(
+                            target, newName + "." + item.split(".")[1])
+                    else:
+                        t = os.path.join(target, newName) 
 
                     names[itemName[4:]] = newName
 
@@ -218,6 +233,60 @@ class ProgramManager:
 
         # Copy the files
         self.copy_recursive(source, "./")
+
+    
+    def import_processing_dependencies(self):
+        """
+        Import the processing dependencies
+        """
+
+        # Create code folder
+        # Check if the folder exists
+        if not os.path.exists("./code"):
+            os.mkdir("./code")
+
+        # List folders in Processing/libraries
+        documentsPath = self.environment["Documents"]
+
+        folderPath = f"{self.homePath}/{documentsPath}/Processing/libraries"
+
+        libraries = os.listdir(folderPath)
+
+        # Copy the libraries
+        for library in libraries:
+
+            if library.startswith("."):
+                continue
+
+            folder = f"{folderPath}/{library}"
+
+            # If folder
+            print(f"Copying {folder}/library/ to ./code/...")
+            self.copy_recursive(f"{folder}/library/", "./code")
+            
+    
+    def clear_folder(self, folder: str):
+        """
+        Clear a folder
+        """
+
+        # Check if the folder exists
+        if not os.path.exists(folder):
+            print(f"{folder} doesn't exist")
+            return
+
+        # Check if the folder is empty
+        if len(os.listdir(folder)) == 0:
+            print(f"{folder} is already empty")
+            return
+
+        # Clear the folder
+        for item in os.listdir(folder):
+            path = os.path.join(folder, item)
+            if os.path.isdir(path):
+                shutil.rmtree(path)
+            else:
+                os.remove(path)
 
 
 if __name__ == "__main__":
@@ -262,6 +331,27 @@ if __name__ == "__main__":
         help="Add utils folder to the project"
     )
 
+    parser.add_argument(
+        "-processing-import",
+        dest="processing_import",
+        action="store_true",
+        help="Add the import of the processing library to the project"
+    )
+
+    parser.add_argument(
+        "-processing-delete",
+        dest="processing_delete",
+        action="store_true",
+        help="Delete the processing library from the project"
+    )
+
+    parser.add_argument(
+        "-clear-folder",
+        dest="clear_folder",
+        action="store_true",
+        help="Clear the folder"
+    )
+
     args = parser.parse_args()
 
     # Create a ProgramManager object
@@ -300,6 +390,19 @@ if __name__ == "__main__":
 
                 # Create the utils folder
                 os.mkdir("utils")
+
+            elif arg == "processing_import":
+
+                program_manager.import_processing_dependencies()
+
+            elif arg == "clear_folder":
+
+                program_manager.clear_folder()
+
+            elif arg == "processing_delete":
+
+                program_manager.clear_folder("code")
+
                 
     if not used:
         print("No argument used, use -h to see the help")
