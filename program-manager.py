@@ -66,6 +66,7 @@ for language in os.listdir(f"{currentPath}/presets"):
         PROGRAMMING_LANGUAGES[language][environment] = {"name": environment, "path": f"{currentPath}/presets/{language}/{environment}", "description": description}
 
 
+
 class ProgramManager:
     """
     Class that handles the programs
@@ -239,7 +240,7 @@ class ProgramManager:
                 # Copy the file
                 shutil.copy2(s, t)
 
-    def generate_file(self, language: str, name: str = "default"):
+    def generate_file(self, language: str, name: str = "default", path: str = "./"):
         """
         Generate a file in the specified language
         """
@@ -248,7 +249,7 @@ class ProgramManager:
         source = currentPath + "/presets/{0}/{1}/".format(language, name)
 
         # Copy the files
-        self.copy_recursive(source, "./")
+        self.copy_recursive(source, path)
 
     
     def import_processing_dependencies(self):
@@ -303,6 +304,33 @@ class ProgramManager:
                 shutil.rmtree(path)
             else:
                 os.remove(path)
+
+
+    def compile_markdown_to_pdf(self, file: str):
+        """
+        Compile a markdown file to pdf
+        """
+
+        # Check if the file exists
+        if not os.path.exists(file):
+            print(f"\x1b[3;31m{file} doesn't exist\x1b[0m")
+            exit()
+        
+        # Check if the file is a markdown file
+        if not file.endswith(".md") or file.startswith("."):
+            print(f"\x1b[3;31m{file} is not a markdown file\x1b[0m")
+            exit()
+
+
+        # Check if listings-setup.tex exists at HOME
+        if not os.path.exists(f"{self.homePath}/listings-setup.tex"):
+            print("\x1b[3;31mlistings-setup.tex doesn't exist at HOME\x1b[0m")
+            # Create the file
+            self.generate_file("latex", "listings-setup", self.homePath)
+
+        # Compile the file
+        # Base command : pandoc -f markdown -t pdf --mathjax --table-of-contents -o "rapport.pdf" --listings -H ./listings-setup.tex --pdf-engine=xelatex "tonmarkdown.md"
+        os.system(f"pandoc -f markdown -t pdf --mathjax --table-of-contents -o \"{file.split('.')[0]}.pdf\" --listings -H {self.homePath}/listings-setup.tex --pdf-engine=xelatex \"{file}\"")
 
 
 if __name__ == "__main__":
@@ -374,6 +402,13 @@ if __name__ == "__main__":
         dest="lg",
         action="store_true",
         help="List the available generators"
+    )
+
+    parser.add_argument(
+        "--pandoc-compile",
+        dest="pandoc_compile",
+        action="store",
+        help="Compile the markdown file to pdf"
     )
 
     args = parser.parse_args()
@@ -489,6 +524,14 @@ if __name__ == "__main__":
                         # Check if the environment has a description
                         if "description" in PROGRAMMING_LANGUAGES[language][environment]:
                             print(f"\t\t\x1b[35m{PROGRAMMING_LANGUAGES[language][environment]['description']}\x1b[39m")
+
+            elif arg == "pandoc_compile":
+
+                program_manager.compile_markdown_to_pdf(value)
+
+                print("\x1b[33m[+] \x1b[39mThe markdown file has been compiled to pdf\x1b[39m")
+
+                
 
                 
     if not used:
