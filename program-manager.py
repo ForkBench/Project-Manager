@@ -103,7 +103,7 @@ class ProgramManager:
             newestFile = self.newestFile(downloads)
 
             # Move the file to the folder where the user is
-            target = "./'{0}'".format(newestFile.split("/")[-1])
+            target = "./{0}".format(newestFile.split("/")[-1])
             os.rename(newestFile, target)
 
             logging.info(
