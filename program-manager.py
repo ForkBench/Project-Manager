@@ -63,8 +63,8 @@ for language in os.listdir(f"{currentPath}/presets"):
             with open(f"{currentPath}/presets/{language}/{environment}/DESC.txt", "r") as f:
                 description = f.read()
 
-        PROGRAMMING_LANGUAGES[language][environment] = {"name": environment, "path": f"{currentPath}/presets/{language}/{environment}", "description": description}
-
+        PROGRAMMING_LANGUAGES[language][environment] = {
+            "name": environment, "path": f"{currentPath}/presets/{language}/{environment}", "description": description}
 
 
 class ProgramManager:
@@ -96,7 +96,8 @@ class ProgramManager:
         Returns the environment of the system
         """
 
-        self.environment = ENVIRONMENTS.get(self.language, {"Documents": "Documents"})
+        self.environment = ENVIRONMENTS.get(
+            self.language, {"Documents": "Documents"})
 
     def newestFile(self, path: str) -> str:
         files = os.listdir(path)
@@ -130,6 +131,9 @@ class ProgramManager:
                     target
                 )
             )
+
+            print(
+                f"Moved \x1b[1;32m{newestFile}\x1b[0m to \x1b[1;32m{target}\x1b[0m")
 
         else:
             print("The environment is not set")
@@ -198,22 +202,35 @@ class ProgramManager:
             # The X is a number, it's the Xth file / directory with the same name
             # Every file / directory with the same X will have the same name
             itemName = item.split(".")[0]
+
+            # Check for DESC.txt
+            if itemName.startswith("DESC"):
+                continue
+
+            # Check if the name is NAMEX
             if itemName.startswith("NAME") and itemName[4:].isdigit():
 
                 if not itemName[4:] in names.keys():
 
                     # Ask the user to change the name
                     itemType = "directory" if isDir else "file"
-                    
-                    newName = input(
-                        f"Enter a new name for {item} ({itemType}) : ")
-                    
+
+                    newName = ""
+
+                    while newName == "":
+
+                        newName = input(
+                            f"Enter a new name for {item} ({itemType}) : ")
+
+                        if newName == "":
+                            print("\x1b[3;34mName cannot be empty\x1b[0m")
+
                     # Check if item.split(".")[1] exists
                     if len(item.split(".")) > 1:
                         t = os.path.join(
                             target, newName + "." + item.split(".")[1])
                     else:
-                        t = os.path.join(target, newName) 
+                        t = os.path.join(target, newName)
 
                     names[itemName[4:]] = newName
 
@@ -251,7 +268,6 @@ class ProgramManager:
         # Copy the files
         self.copy_recursive(source, path)
 
-    
     def import_processing_dependencies(self):
         """
         Import the processing dependencies
@@ -280,8 +296,7 @@ class ProgramManager:
             # If folder
             print(f"Copying {folder}/library/ to ./code/...")
             self.copy_recursive(f"{folder}/library/", "./code")
-            
-    
+
     def clear_folder(self, folder: str):
         """
         Clear a folder
@@ -305,7 +320,6 @@ class ProgramManager:
             else:
                 os.remove(path)
 
-
     def compile_markdown_to_pdf(self, file: str):
         """
         Compile a markdown file to pdf
@@ -315,12 +329,11 @@ class ProgramManager:
         if not os.path.exists(file):
             print(f"\x1b[3;31m{file} doesn't exist\x1b[0m")
             exit()
-        
+
         # Check if the file is a markdown file
         if not file.endswith(".md") or file.startswith("."):
             print(f"\x1b[3;31m{file} is not a markdown file\x1b[0m")
             exit()
-
 
         # Check if listings-setup.tex exists at HOME
         if not os.path.exists(f"{self.homePath}/listings-setup.tex"):
@@ -330,7 +343,21 @@ class ProgramManager:
 
         # Compile the file
         # Base command : pandoc -f markdown -t pdf --mathjax --table-of-contents -o "rapport.pdf" --listings -H ./listings-setup.tex --pdf-engine=xelatex "tonmarkdown.md"
-        os.system(f"pandoc -f markdown -t pdf --mathjax --table-of-contents -o \"{file.split('.')[0]}.pdf\" --listings -H {self.homePath}/listings-setup.tex --pdf-engine=xelatex \"{file}\"")
+        os.system(
+            f"pandoc -f markdown -t pdf --mathjax --table-of-contents -o \"{file.split('.')[0]}.pdf\" --listings -H {self.homePath}/listings-setup.tex --pdf-engine=xelatex \"{file}\"")
+
+    def clear_tp_log(self):
+        """ 
+        Clear the tp (moves.log) log in the program folder
+        """
+
+        # Check if the file exists
+        if not os.path.exists(f"{currentPath}/moves.log"):
+            print("\x1b[3;31mFile moves.log doesn't exist\x1b[0m")
+            return
+
+        # Clear the file
+        open(f"{currentPath}/moves.log", "w").close()
 
 
 if __name__ == "__main__":
@@ -411,6 +438,14 @@ if __name__ == "__main__":
         help="Compile the markdown file to pdf"
     )
 
+    parser.add_argument(
+        "-ctp",
+        "--clear-tp",
+        dest="ctp",
+        action="store_true",
+        help="Clear the TP log file"
+    )
+
     args = parser.parse_args()
 
     # Create a ProgramManager object
@@ -419,19 +454,18 @@ if __name__ == "__main__":
     # Loop through the arguments
     used = False
 
-    print("\n\x1b[32m[+=====================+]\n\x1b[39m")
-
     for arg in vars(args):
         value = getattr(args, arg)
 
         if value:
-            
+
             used = True
 
             if arg == "tp":
                 program_manager.move_last_downloads()
 
-                print("\x1b[33m[+] \x1b[39mThe last downloads have been moved from the Downloads folder\x1b[39m")
+                print(
+                    "\x1b[33m[+] \x1b[39mThe last downloads have been moved from the Downloads folder\x1b[39m")
 
             elif arg == "g":
 
@@ -445,10 +479,12 @@ if __name__ == "__main__":
 
                     # Check if the environment has a description
                     if "description" in PROGRAMMING_LANGUAGES[value][environment]:
-                        print(f"\t\t\x1b[34m{PROGRAMMING_LANGUAGES[value][environment]['description']}\x1b[39m")
-                
+                        print(
+                            f"\t\t\x1b[34m{PROGRAMMING_LANGUAGES[value][environment]['description']}\x1b[39m")
+
                 # Get the environment
-                userInput = input("\n\x1b[32mChoose an Environment : (Default 0) \x1b[39m")
+                userInput = input(
+                    "\n\x1b[32mChoose an Environment : (Default 0) \x1b[39m")
 
                 choice = 0
 
@@ -456,10 +492,11 @@ if __name__ == "__main__":
                     choice = int(userInput)
                 except:
                     pass
-                
+
                 if not choice in range(len(availableEnvironments)):
                     choice = 0
-                    print("\n\x1b[31m\t[!]\x1b[39m Invalid choice, defaulting to 0")
+                    print(
+                        "\n\x1b[31m\t[!]\x1b[39m Invalid choice, defaulting to 0")
 
                 # Get the environment
                 environment = list(availableEnvironments)[choice]
@@ -469,14 +506,16 @@ if __name__ == "__main__":
                 # Generate files
                 program_manager.generate_file(value, environment)
 
-                print("\x1b[33m[+] \x1b[39mThe files have been generated\x1b[39m")
+                print(
+                    "\x1b[33m[+] \x1b[39mThe files have been generated\x1b[39m")
 
             elif arg == "utp":
 
                 # Undo the last move of the last downloads
                 program_manager.undo_move_last_downloads()
 
-                print("\x1b[33m[+] \x1b[39mThe last downloads have been moved back to the Downloads folder\x1b[39m")
+                print(
+                    "\x1b[33m[+] \x1b[39mThe last downloads have been moved back to the Downloads folder\x1b[39m")
 
             elif arg == "git":
 
@@ -485,20 +524,23 @@ if __name__ == "__main__":
                 os.system("git add .")
                 os.system("git commit -m 'Project Initialisation'")
 
-                print("\x1b[33m[+] \x1b[39mThe git repository has been initialized\x1b[39m")
+                print(
+                    "\x1b[33m[+] \x1b[39mThe git repository has been initialized\x1b[39m")
 
             elif arg == "utils":
 
                 # Create the utils folder
                 os.mkdir("utils")
 
-                print("\x1b[33m[+] \x1b[39mThe utils folder has been created\x1b[39m")
+                print(
+                    "\x1b[33m[+] \x1b[39mThe utils folder has been created\x1b[39m")
 
             elif arg == "processing_import":
 
                 program_manager.import_processing_dependencies()
 
-                print("\x1b[33m[+] \x1b[39mThe processing library has been imported to the project")
+                print(
+                    "\x1b[33m[+] \x1b[39mThe processing library has been imported to the project")
 
             elif arg == "clear_folder":
 
@@ -510,7 +552,8 @@ if __name__ == "__main__":
 
                 program_manager.clear_folder("code")
 
-                print("\x1b[33m[+] \x1b[39mThe processing library has been deleted from the project")
+                print(
+                    "\x1b[33m[+] \x1b[39mThe processing library has been deleted from the project")
 
             elif arg == "lg":
 
@@ -523,21 +566,25 @@ if __name__ == "__main__":
 
                         # Check if the environment has a description
                         if "description" in PROGRAMMING_LANGUAGES[language][environment]:
-                            print(f"\t\t\x1b[35m{PROGRAMMING_LANGUAGES[language][environment]['description']}\x1b[39m")
+                            print(
+                                f"\t\t\x1b[35m{PROGRAMMING_LANGUAGES[language][environment]['description']}\x1b[39m")
 
             elif arg == "pandoc_compile":
 
                 program_manager.compile_markdown_to_pdf(value)
 
-                print("\x1b[33m[+] \x1b[39mThe markdown file has been compiled to pdf\x1b[39m")
+                print(
+                    "\x1b[33m[+] \x1b[39mThe markdown file has been compiled to pdf\x1b[39m")
 
-                
+            elif arg == "ctp":
 
-                
+                program_manager.clear_tp_log()
+
+                print(
+                    "\x1b[33m[+] \x1b[39mThe TP log file has been cleared\x1b[39m")
+
     if not used:
         print("No argument used, use -h to see the help")
         sys.exit(1)
-
-    print("\n\x1b[32m[+=====================+]\n\x1b[39m")
 
     print("\x1b[32m[+] Done\x1b[39m")

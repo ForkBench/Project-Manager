@@ -40,7 +40,7 @@ Arguments:
 ```bash
 usage: program-manager.py [-h] [-tp] [-g {[languages]}] [-utp] [--git] [--utils]
                           [--processing-import] [--processing-delete] [--clear-folder] [-lg]
-                          [--pandoc-compile PANDOC_COMPILE]
+                          [--pandoc-compile FILE_NAME] [-ctp]
 ```
 
 ## Options
@@ -81,6 +81,8 @@ Make a table with the options (commands are between "`")
 | `--clear-folder` | Clear the folder |
 | `-lg`, `--list-generators` | List the available generators |
 | `--pandoc-compile PANDOC_COMPILE` | Compile the markdown file to pdf |
+| `-ctp`, `--clear-tp` | Clear the TP log file |
+
 
 ## Personalization
 
