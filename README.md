@@ -6,6 +6,21 @@ This is a simple project manager that allows you to create projects and tasks. I
 
 It helps you to import quickly your projects presets, and to automatically do some tasks.
 
+# TODO
+
+- [ ] Add documentation for the program itself
+- [ ] Add documentation for programming languages
+- [ ] Add a tool to easily add presets (with a GUI ?) (maybe with a web interface ?)
+- [ ] Reconfigure the program with a GUI (Django ?)
+- [ ] Add presets for other languages
+- [ ] Cross-platform support (Nearly done)
+- [ ] Add tool downloaders (for example, download LaTeX, Processing, etc.) (maybe with a web interface as well ?)
+
+Globally : 
+
+- [ ] Add a web interface to manage the program
+
+
 # Installation
 
 It's a simple Python script, so you need to install Python 3.6 or higher.
