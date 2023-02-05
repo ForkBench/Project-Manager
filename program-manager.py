@@ -174,7 +174,7 @@ class ProgramManager:
             with open(f"{currentPath}/moves.log", "w") as f:
                 f.writelines(lines[:-1])
 
-    def copy_recursive(self, source: str, target: str, names: dict = {}):
+    def copy_recursive(self, source: str, target: str, names: dict = {}, copiedFiles: list = []):
         """
         Copy everything recursively from source to target
         """
@@ -257,6 +257,12 @@ class ProgramManager:
                 # Copy the file
                 shutil.copy2(s, t)
 
+                # Add the file to the list of copied files
+                copiedFiles.append(t)
+
+        # Return the names
+        return names, copiedFiles
+
     def generate_file(self, language: str, name: str = "default", path: str = "./"):
         """
         Generate a file in the specified language
@@ -265,8 +271,25 @@ class ProgramManager:
         # Get directory to clone
         source = currentPath + "/presets/{0}/{1}/".format(language, name)
 
-        # Copy the files
-        self.copy_recursive(source, path)
+        # Copy the files, and get the names
+        names, copiedFiles = self.copy_recursive(source, path)
+
+        # For each file copied, replace the names INSIDE the file
+        for file in copiedFiles:
+
+            # Read the file
+            with open(file, "r") as f:
+                content = f.read()
+
+            # Replace the names
+            for key in names.keys():
+                content = content.replace(f"NAME{key}", names[key])
+
+            # Write the file
+            with open(file, "w") as f:
+                f.write(content)
+
+
 
     def import_processing_dependencies(self):
         """

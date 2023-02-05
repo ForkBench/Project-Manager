@@ -1,2 +1,4 @@
 tests/
 moves.log
+# For now, I only test the web-scheme
+web-scheme/
