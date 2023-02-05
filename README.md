@@ -30,9 +30,14 @@ Then, you need to install the requirements:
 pip3 install argparse
 ```
 
+First of all, you need to clone the repository:
+```bash
+git clone https://gitlab.isima.fr/rovandemer/project-manager.git
+```
+
 ## Linux and Mac
 
-Then put the script in your `HOME` directory, and add the following line in your `.bashrc` file (for Linux) or `.bash_profile` file (for Mac):
+Add the following line in your `.bashrc` file (for Linux) or `.bash_profile` file (for Mac):
 
 ```bash
 echo "alias pm='python3 /PATH/TO/program-manager.py'" >> ~/.bashrc
