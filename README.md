@@ -28,6 +28,7 @@ It's a simple Python script, so you need to install Python 3.6 or higher.
 Then, you need to install the requirements:
 ```bash
 pip3 install argparse
+pip3 install parse
 ```
 
 First of all, you need to clone the repository:
